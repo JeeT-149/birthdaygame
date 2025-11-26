@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Star, Heart, Trophy, PartyPopper } from 'lucide-react';
 import { useAudio } from './AudioPlayer';
 
 interface CongratulationsScreenProps {
@@ -8,40 +7,56 @@ interface CongratulationsScreenProps {
 }
 
 export default function CongratulationsScreen({ onComplete }: CongratulationsScreenProps) {
-  const [showFireworks, setShowFireworks] = useState(true);
-  const [showText, setShowText] = useState(false);
-  const [showButton, setShowButton] = useState(false);
+  const [paperStage, setPaperStage] = useState(1); // 1, 2, or 3
+  const [showContinueButton, setShowContinueButton] = useState(false);
   const { playSound } = useAudio();
 
   useEffect(() => {
-    // Play celebration sound
+    // Play celebration sound when component mounts
     playSound('goodresult');
-    
-    // Show text after a delay
-    const textTimer = setTimeout(() => setShowText(true), 1000);
-    
-    // Show button after longer delay
-    const buttonTimer = setTimeout(() => setShowButton(true), 3000);
-    
-    // Remove auto continue - let user stay on congratulations screen
-
-    return () => {
-      clearTimeout(textTimer);
-      clearTimeout(buttonTimer);
-    };
   }, []);
+
+  useEffect(() => {
+    // Show continue button after reaching final stage
+    if (paperStage === 3) {
+      const timer = setTimeout(() => {
+        setShowContinueButton(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [paperStage]);
+
+  const handlePaperClick = () => {
+    if (paperStage < 3) {
+      playSound('click');
+      setPaperStage(prev => prev + 1);
+    }
+  };
 
   const handleContinue = () => {
     playSound('click');
     onComplete();
   };
 
+  const getPaperSize = () => {
+    switch (paperStage) {
+      case 1: return 'w-64 h-80'; // Small
+      case 2: return 'w-[35rem] h-[45rem]'; // Very Large
+      case 3: return 'w-[95vw] h-[90vh] max-w-none max-h-none'; // Full screen
+      default: return 'w-64 h-80';
+    }
+  };
+
+  const getPaperImage = () => {
+    return `/brownpaper${paperStage}.jpg`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 relative overflow-hidden" 
          style={{ 
-           background: 'linear-gradient(45deg, #FF6B9D, #C44CAE, #8B5CF6, #3B82F6)',
+           background: 'linear-gradient(45deg, #8B4513, #A0522D, #CD853F, #DEB887)',
            backgroundSize: '400% 400%',
-           animation: 'gradient 3s ease infinite'
+           animation: 'gradient 4s ease infinite'
          }}>
       
       {/* Background Animation */}
@@ -51,203 +66,207 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes bounce {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
         }
       `}</style>
 
-      {/* Floating Particles */}
-      {showFireworks && (
-        <>
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              initial={{ scale: 0, rotate: 0 }}
-              animate={{ 
-                scale: [0, 1, 0],
-                rotate: [0, 360],
-                x: [0, Math.random() * 200 - 100],
-                y: [0, Math.random() * 200 - 100]
-              }}
-              transition={{
-                duration: 3,
-                delay: i * 0.1,
-                repeat: Infinity,
-                repeatDelay: 2
-              }}
-            >
-              {i % 4 === 0 && <Sparkles className="w-6 h-6 text-yellow-300" />}
-              {i % 4 === 1 && <Star className="w-5 h-5 text-pink-300" />}
-              {i % 4 === 2 && <Heart className="w-5 h-5 text-red-400" />}
-              {i % 4 === 3 && <div className="w-3 h-3 bg-white rounded-full" />}
-            </motion.div>
-          ))}
-        </>
-      )}
-
-      {/* Main Content */}
-      <motion.div
-        className="text-center z-10"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, type: "spring", bounce: 0.6 }}
+      {/* Title */}
+      <motion.h1
+        className="text-5xl md:text-6xl font-bold text-amber-100 mb-8 text-center drop-shadow-2xl"
+        style={{ fontFamily: 'serif' }}
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, type: "spring", bounce: 0.4 }}
       >
-        {/* Trophy Icon */}
-        <motion.div
-          className="mb-8"
-          animate={{ 
-            rotate: [0, -10, 10, 0],
-            y: [0, -10, 0]
+        🎉 CONGRATULATIONS! 🎉
+      </motion.h1>
+
+      {/* Subtitle */}
+      <motion.p
+        className="text-2xl md:text-3xl text-amber-200 mb-12 text-center drop-shadow-lg"
+        style={{ fontFamily: 'serif' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+      >
+        You've unlocked a special message!
+      </motion.p>
+
+      {/* Paper Image */}
+      <motion.div
+        className="relative cursor-pointer"
+        initial={{ scale: 0, rotate: -10 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 1, duration: 0.8, type: "spring", bounce: 0.3 }}
+      >
+        <motion.img
+          src={getPaperImage()}
+          alt={`Brown Paper ${paperStage}`}
+          className={`${getPaperSize()} object-contain shadow-2xl`}
+          onClick={handlePaperClick}
+          style={{
+            filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5))',
+            animation: paperStage < 3 ? 'glow 2s ease-in-out infinite' : 'none'
           }}
+          whileHover={{ 
+            scale: paperStage < 3 ? 1.05 : 1.02,
+            rotate: paperStage < 3 ? [0, 2, -2, 0] : 0
+          }}
+          whileTap={{ scale: 0.98 }}
           transition={{ 
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
+            scale: { duration: 0.6, type: "spring" },
+            rotate: { duration: 0.3 }
           }}
-        >
-          <Trophy className="w-24 h-24 text-yellow-300 mx-auto drop-shadow-lg" />
-        </motion.div>
-
-        {/* Congratulations Text */}
-        <AnimatePresence>
-          {showText && (
+          layout
+        />
+        
+        {/* Text box for brownpaper3 */}
+        {paperStage === 3 && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+          >
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, type: "spring" }}
-            >
-              <motion.h1
-                className="text-6xl md:text-8xl font-bold text-white mb-6 drop-shadow-2xl"
-                style={{ fontFamily: 'monospace' }}
-                animate={{ 
-                  textShadow: [
-                    "0 0 20px rgba(255,255,255,0.8)",
-                    "0 0 40px rgba(255,215,0,0.8)",
-                    "0 0 20px rgba(255,255,255,0.8)"
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                🎉 CONGRATULATIONS! 🎉
-              </motion.h1>
-              
-              <motion.p
-                className="text-2xl md:text-3xl text-white/90 mb-4 drop-shadow-lg"
-                style={{ fontFamily: 'monospace' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              >
-                You cracked the password!
-              </motion.p>
-              
-              <motion.p
-                className="text-xl md:text-2xl text-yellow-200 mb-8 drop-shadow-lg"
-                style={{ fontFamily: 'monospace' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.8 }}
-              >
-                ✨ SHREYA271105 ✨
-              </motion.p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Success Message */}
-        <AnimatePresence>
-          {showText && (
-            <motion.div
-              className="bg-white/20 backdrop-blur-md rounded-3xl p-8 border-2 border-white/30 mb-8"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.5, duration: 0.6, type: "spring" }}
-            >
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="mb-4"
-              >
-                <PartyPopper className="w-12 h-12 text-yellow-300 mx-auto" />
-              </motion.div>
-              <p className="text-white text-lg" style={{ fontFamily: 'monospace' }}>
-                Amazing detective work! 🕵️‍♀️
-                <br />
-                You've successfully completed the Password Challenge!
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Continue Button */}
-        <AnimatePresence>
-          {showButton && (
-            <motion.button
-              onClick={handleContinue}
-              className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-4 px-12 rounded-full text-xl shadow-2xl border-4 border-white/30 backdrop-blur-sm transition-all duration-300"
-              style={{ fontFamily: 'monospace' }}
-              initial={{ opacity: 0, y: 50, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+              className="text-amber-900 p-6 max-w-3xl text-center"
+              style={{ 
+                fontFamily: 'serif',
+                textShadow: '1px 1px 2px rgba(255, 255, 255, 0.3)',
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
               }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6, type: "spring" }}
             >
-              🚀 Continue Adventure 🚀
-            </motion.button>
-          )}
-        </AnimatePresence>
+              <h3 className="text-4xl font-bold text-amber-900 mb-5 tracking-wide">
+                 Special Message 
+              </h3>
+              <p className="text-2xl leading-relaxed font-medium text-amber-900">
+                Congratulations Shreya! You've unlocked the final secret message. 
+                Your journey through all the challenges has been amazing!
+                There were some things here and there but we are finally here.
+                There were times where things didn't went well, but I am Very
+                Grateful for all these years, thanks for being you, Shreya.
+                I have no regrets for whatever i did in the previous year, 
+                but the probability that i might've hurt you still haunts me.
+                I am extremely sorry for whatever i have caused, hope this
+                little game cheers you and enlighten your birthday.
+              </p>
+              <div className="text-3xl font-semibold text-amber-900 mb-5 tracking-wide">
+                 Once again, Happy Birthday Shreya ✨
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        
+        {/* Click indicator for stages 1 and 2 */}
+        {paperStage < 3 && (
+          <motion.div
+            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+          >
+            <motion.div
+              className="bg-amber-100/90 text-amber-900 px-4 py-2 rounded-full text-sm font-semibold"
+              animate={{ 
+                y: [0, -5, 0],
+                boxShadow: [
+                  "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  "0 8px 16px rgba(0, 0, 0, 0.2)",
+                  "0 4px 8px rgba(0, 0, 0, 0.1)"
+                ]
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              👆 Click to continue
+            </motion.div>
+          </motion.div>
+        )}
       </motion.div>
 
-      {/* Corner Decorations */}
+      {/* Stage Indicator */}
+      <motion.div 
+        className="mt-8 flex space-x-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        {[1, 2, 3].map((stage) => (
+          <motion.div
+            key={stage}
+            className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+              stage <= paperStage ? 'bg-amber-300' : 'bg-amber-600/30'
+            }`}
+            animate={{
+              scale: stage === paperStage ? [1, 1.2, 1] : 1
+            }}
+            transition={{ duration: 0.5, repeat: stage === paperStage ? Infinity : 0, repeatDelay: 1 }}
+          />
+        ))}
+      </motion.div>
+
+      {/* Continue Button */}
+      <AnimatePresence>
+        {showContinueButton && (
+          <motion.button
+            onClick={handleContinue}
+            className="mt-12 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold py-4 px-12 rounded-full text-xl shadow-2xl border-4 border-amber-200/30 backdrop-blur-sm transition-all duration-300"
+            style={{ fontFamily: 'serif' }}
+            initial={{ opacity: 0, y: 50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+          >
+            🎯 Play Again! 🎯
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Decorative Elements */}
       <motion.div
         className="absolute top-8 left-8"
         animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       >
-        <Star className="w-8 h-8 text-yellow-300" />
+        <div className="text-4xl">📜</div>
       </motion.div>
       
       <motion.div
         className="absolute top-8 right-8"
         animate={{ rotate: -360 }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       >
-        <Sparkles className="w-8 h-8 text-pink-300" />
+        <div className="text-4xl">🏆</div>
       </motion.div>
       
       <motion.div
         className="absolute bottom-8 left-8"
         animate={{ 
           scale: [1, 1.2, 1],
-          rotate: [0, 180, 360]
+          rotate: [0, 10, -10, 0]
         }}
         transition={{ duration: 3, repeat: Infinity }}
       >
-        <Heart className="w-8 h-8 text-red-400" />
+        <div className="text-4xl">✨</div>
       </motion.div>
       
       <motion.div
         className="absolute bottom-8 right-8"
         animate={{ 
           y: [0, -20, 0],
-          rotate: [0, 10, -10, 0]
+          rotate: [0, 15, -15, 0]
         }}
         transition={{ duration: 2.5, repeat: Infinity }}
       >
-        <Trophy className="w-8 h-8 text-yellow-400" />
+        <div className="text-4xl">🎉</div>
       </motion.div>
     </div>
   );

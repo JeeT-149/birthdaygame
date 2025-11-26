@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { RotateCcw, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Confetti from './Confetti';
 import { useAudio } from './AudioPlayer';
 
@@ -12,10 +12,21 @@ interface BirthdayScreenProps {
 export default function BirthdayScreen({ onReplay, onNext }: BirthdayScreenProps) {
   const [key, setKey] = useState(0);
   const [showConfetti, setShowConfetti] = useState(true);
-  const { playSound } = useAudio();
+  const { playSound, autoStartMusic } = useAudio();
+
+  // Auto-start background music when birthday screen loads
+  useEffect(() => {
+    // Small delay to ensure audio context is ready
+    const timer = setTimeout(() => {
+      autoStartMusic();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [autoStartMusic]);
 
   const handleReplay = () => {
     playSound('click');
+    autoStartMusic(); // Ensure music starts on user interaction as backup
     setKey(prev => prev + 1);
     setShowConfetti(false);
     setTimeout(() => setShowConfetti(true), 100);
@@ -23,6 +34,7 @@ export default function BirthdayScreen({ onReplay, onNext }: BirthdayScreenProps
 
   const handleNext = () => {
     playSound('success');
+    autoStartMusic(); // Ensure music starts on user interaction as backup
     onNext();
   };
 

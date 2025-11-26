@@ -1,19 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BirthdayScreen from './components/BirthdayScreen';
 import GameIntroScreen from './components/GameIntroScreen';
 import GuessNumberGame from './components/GuessNumberGame';
 import RockPaperScissorsGame from './components/RockPaperScissorsGame';
 import WordleGame from './components/WordleGame';
 import PasswordGameScreen from './components/PasswordGameScreen';
+import CongratulationsScreen from './components/CongratulationsScreen';
 import Confetti from './components/Confetti';
 import { AudioProvider } from './components/AudioPlayer';
 import { CursorProvider, Cursor } from './components/ui/cursor';
 
-type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'complete';
+type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'congratulations' | 'complete';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('birthday');
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Check for URL parameters to access test screens
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const testScreen = urlParams.get('screen');
+    if (testScreen === 'congratulations') {
+      setCurrentScreen('congratulations');
+    }
+  }, []);
 
   const handleReplay = () => {
     setCurrentScreen('birthday');
@@ -26,7 +36,8 @@ export default function App() {
     else if (currentScreen === 'guess-number') setCurrentScreen('rps');
     else if (currentScreen === 'rps') setCurrentScreen('wordle');
     else if (currentScreen === 'wordle') setCurrentScreen('password');
-    else if (currentScreen === 'password') {
+    else if (currentScreen === 'password') setCurrentScreen('congratulations');
+    else if (currentScreen === 'congratulations') {
       setCurrentScreen('complete');
       setShowConfetti(true);
     }
@@ -77,6 +88,10 @@ export default function App() {
         
         {currentScreen === 'password' && (
           <PasswordGameScreen onComplete={handleNext} />
+        )}
+        
+        {currentScreen === 'congratulations' && (
+          <CongratulationsScreen onComplete={handleReplay} />
         )}
         
         {currentScreen === 'complete' && (
