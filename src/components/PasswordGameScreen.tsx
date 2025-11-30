@@ -9,7 +9,7 @@ interface PasswordGameScreenProps {
 }
 
 export default function PasswordGameScreen({ onComplete }: PasswordGameScreenProps) {
-  const [password] = useState('SHREYA271105');
+  const [password] = useState('JEET');
   const [input, setInput] = useState('');
   const [won, setWon] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);

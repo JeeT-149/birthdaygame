@@ -222,7 +222,7 @@ export default function BirthdayScreen({ onReplay, onNext }: BirthdayScreenProps
               WebkitTextStroke: '2px white'
             }}
           >
-            SHREYA
+            Jeet
           </h2>
           
           {/* Birthday Cake Image - Small Size */}

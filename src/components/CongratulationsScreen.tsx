@@ -147,16 +147,9 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
               <p className="text-2xl leading-relaxed font-medium text-amber-900">
                 Congratulations Shreya! You've unlocked the final secret message. 
                 Your journey through all the challenges has been amazing!
-                There were some things here and there but we are finally here.
-                There were times where things didn't went well, but I am Very
-                Grateful for all these years, thanks for being you, Shreya.
-                I have no regrets for whatever i did in the previous year, 
-                but the probability that i might've hurt you still haunts me.
-                I am extremely sorry for whatever i have caused, hope this
-                little game cheers you and enlighten your birthday.
               </p>
               <div className="text-3xl font-semibold text-amber-900 mb-5 tracking-wide">
-                 Once again, Happy Birthday Shreya ✨
+                 Once again, Happy Birthday JeeT ✨
               </div>
             </motion.div>
           </motion.div>
