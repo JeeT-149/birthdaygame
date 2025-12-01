@@ -3,10 +3,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAudio } from './AudioPlayer';
 
 interface CongratulationsScreenProps {
-  onComplete: () => void;
+  onComplete: (action?: string) => void;
+  customData?: {
+    name: string;
+    hint: string;
+    password: string;
+    secretMessage: string;
+  } | null;
 }
 
-export default function CongratulationsScreen({ onComplete }: CongratulationsScreenProps) {
+export default function CongratulationsScreen({ onComplete, customData }: CongratulationsScreenProps) {
   const [paperStage, setPaperStage] = useState(1); // 1, 2, or 3
   const [showContinueButton, setShowContinueButton] = useState(false);
   const { playSound } = useAudio();
@@ -66,10 +72,6 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
-        }
       `}</style>
 
       {/* Title */}
@@ -107,8 +109,7 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
           className={`${getPaperSize()} object-contain shadow-2xl`}
           onClick={handlePaperClick}
           style={{
-            filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5))',
-            animation: paperStage < 3 ? 'glow 2s ease-in-out infinite' : 'none'
+            filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5))'
           }}
           whileHover={{ 
             scale: paperStage < 3 ? 1.05 : 1.02,
@@ -145,40 +146,15 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
                  Special Message 
               </h3>
               <p className="text-2xl leading-relaxed font-medium text-amber-900">
-                Congratulations Shreya! You've unlocked the final secret message. 
-                Your journey through all the challenges has been amazing!
+                {customData?.secretMessage || 'Congratulations! You\'ve unlocked the final secret message. Your journey through all the challenges has been amazing!'}
               </p>
               <div className="text-3xl font-semibold text-amber-900 mb-5 tracking-wide">
-                 Once again, Happy Birthday JeeT ✨
+                 Once again, Happy Birthday {customData?.name || 'JeeT'} ✨
               </div>
             </motion.div>
           </motion.div>
         )}
         
-        {/* Click indicator for stages 1 and 2 */}
-        {paperStage < 3 && (
-          <motion.div
-            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-          >
-            <motion.div
-              className="bg-amber-100/90 text-amber-900 px-4 py-2 rounded-full text-sm font-semibold"
-              animate={{ 
-                y: [0, -5, 0],
-                boxShadow: [
-                  "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  "0 8px 16px rgba(0, 0, 0, 0.2)",
-                  "0 4px 8px rgba(0, 0, 0, 0.1)"
-                ]
-              }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              👆 Click to continue
-            </motion.div>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Stage Indicator */}
@@ -202,28 +178,47 @@ export default function CongratulationsScreen({ onComplete }: CongratulationsScr
         ))}
       </motion.div>
 
-      {/* Continue Button */}
-      <AnimatePresence>
-        {showContinueButton && (
-          <motion.button
-            onClick={handleContinue}
-            className="mt-12 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold py-4 px-12 rounded-full text-xl shadow-2xl border-4 border-amber-200/30 backdrop-blur-sm transition-all duration-300"
-            style={{ fontFamily: 'serif' }}
-            initial={{ opacity: 0, y: 50, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
-            }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-          >
-            🎯 Play Again! 🎯
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Decorative Elements */}
+        {/* Buttons */}
+        <AnimatePresence>
+          {showContinueButton && (
+            <motion.div
+              className="mt-12 flex gap-4 justify-center flex-wrap"
+              initial={{ opacity: 0, y: 50, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+            >
+              <motion.button
+                onClick={handleContinue}
+                className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold py-4 px-12 rounded-full text-xl shadow-2xl border-4 border-amber-200/30 backdrop-blur-sm transition-all duration-300"
+                style={{ fontFamily: 'serif' }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                🎯 Play Again! 🎯
+              </motion.button>
+              
+              <motion.button
+                onClick={() => {
+                  playSound('click');
+                  // Navigate to create game - we'll need to pass this through props
+                  if (onComplete) onComplete('create');
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-full text-xl shadow-2xl border-4 border-purple-200/30 backdrop-blur-sm transition-all duration-300"
+                style={{ fontFamily: 'serif' }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                🎨 Create Game! 🎨
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>      {/* Decorative Elements */}
       <motion.div
         className="absolute top-8 left-8"
         animate={{ rotate: 360 }}

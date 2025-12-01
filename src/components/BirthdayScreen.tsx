@@ -7,9 +7,15 @@ import { useAudio } from './AudioPlayer';
 interface BirthdayScreenProps {
   onReplay: () => void;
   onNext: () => void;
+  customData?: {
+    name: string;
+    hint: string;
+    password: string;
+    secretMessage: string;
+  } | null;
 }
 
-export default function BirthdayScreen({ onReplay, onNext }: BirthdayScreenProps) {
+export default function BirthdayScreen({ onReplay, onNext, customData }: BirthdayScreenProps) {
   const [key, setKey] = useState(0);
   const [showConfetti, setShowConfetti] = useState(true);
   const { playSound, autoStartMusic } = useAudio();
@@ -222,7 +228,7 @@ export default function BirthdayScreen({ onReplay, onNext }: BirthdayScreenProps
               WebkitTextStroke: '2px white'
             }}
           >
-            Jeet
+            {customData?.name || 'Jeet'}
           </h2>
           
           {/* Birthday Cake Image - Small Size */}

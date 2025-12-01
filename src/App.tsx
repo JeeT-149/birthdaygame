@@ -6,32 +6,60 @@ import RockPaperScissorsGame from './components/RockPaperScissorsGame';
 import WordleGame from './components/WordleGame';
 import PasswordGameScreen from './components/PasswordGameScreen';
 import CongratulationsScreen from './components/CongratulationsScreen';
+import BirthdayCreate from './components/BirthdayCreate';
 import Confetti from './components/Confetti';
 import { AudioProvider } from './components/AudioPlayer';
 import { CursorProvider, Cursor } from './components/ui/cursor';
 
-type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'congratulations' | 'complete';
+type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'congratulations' | 'create' | 'complete';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('birthday');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('create');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [customGameData, setCustomGameData] = useState<any>(null);
 
-  // Check for URL parameters to access test screens
+  // Check for URL parameters to access test screens and shared games
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const testScreen = urlParams.get('screen');
-    if (testScreen === 'congratulations') {
+    const gameParam = urlParams.get('game');
+    
+    if (gameParam) {
+      // Decode shared game data
+      try {
+        const decodedData = JSON.parse(atob(gameParam));
+        setCustomGameData(decodedData);
+        setCurrentScreen('birthday'); // Start the game with custom data
+      } catch (error) {
+        console.error('Error decoding game data:', error);
+        setCurrentScreen('create'); // Fallback to create screen
+      }
+    } else if (testScreen === 'congratulations') {
       setCurrentScreen('congratulations');
+    } else if (testScreen === 'create') {
+      setCurrentScreen('create');
     }
   }, []);
 
-  const handleReplay = () => {
-    setCurrentScreen('birthday');
+  const handleReplay = (action?: string) => {
+    if (action === 'create') {
+      setCurrentScreen('create');
+    } else {
+      setCurrentScreen('birthday');
+    }
     setShowConfetti(false);
   };
 
   const handleNext = () => {
-    if (currentScreen === 'birthday') setCurrentScreen('intro');
+    if (currentScreen === 'create') {
+      // Load custom game data from localStorage
+      const savedData = localStorage.getItem('customBirthdayGame');
+      if (savedData) {
+        setCustomGameData(JSON.parse(savedData));
+      }
+      setCurrentScreen('birthday');
+    }
+    else if (currentScreen === 'birthday') setCurrentScreen('intro');
     else if (currentScreen === 'intro') setCurrentScreen('guess-number');
     else if (currentScreen === 'guess-number') setCurrentScreen('rps');
     else if (currentScreen === 'rps') setCurrentScreen('wordle');
@@ -66,8 +94,12 @@ export default function App() {
           </Cursor>
           {showConfetti && <Confetti />}
         
+        {currentScreen === 'create' && (
+          <BirthdayCreate onComplete={handleNext} />
+        )}
+        
         {currentScreen === 'birthday' && (
-          <BirthdayScreen onReplay={handleReplay} onNext={handleNext} />
+          <BirthdayScreen onReplay={handleReplay} onNext={handleNext} customData={customGameData} />
         )}
         
         {currentScreen === 'intro' && (
@@ -87,11 +119,11 @@ export default function App() {
         )}
         
         {currentScreen === 'password' && (
-          <PasswordGameScreen onComplete={handleNext} />
+          <PasswordGameScreen onComplete={handleNext} customData={customGameData} />
         )}
         
         {currentScreen === 'congratulations' && (
-          <CongratulationsScreen onComplete={handleReplay} />
+          <CongratulationsScreen onComplete={handleReplay} customData={customGameData} />
         )}
         
         {currentScreen === 'complete' && (
@@ -99,13 +131,13 @@ export default function App() {
             <div className="text-center space-y-6">
               <h1 className="text-6xl">🎉</h1>
               <h2 className="text-5xl bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                You Won All Games, JeeT!
+                You Won All Games, {customGameData?.name || 'JeeT'}!
               </h2>
               <p className="text-xl text-gray-600">
                 Happy Birthday! 🎂 Hope you had fun!
               </p>
               <button
-                onClick={handleReplay}
+                onClick={() => handleReplay()}
                 className="px-8 py-4 bg-gradient-to-r from-pink-400 to-orange-400 text-white rounded-full hover:scale-105 transition-transform shadow-lg"
               >
                 🔄 Play Again

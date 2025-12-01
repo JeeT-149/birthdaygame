@@ -6,10 +6,17 @@ import CongratulationsScreen from './CongratulationsScreen';
 
 interface PasswordGameScreenProps {
   onComplete: () => void;
+  customData?: {
+    name: string;
+    hint: string;
+    password: string;
+    secretMessage: string;
+  } | null;
 }
 
-export default function PasswordGameScreen({ onComplete }: PasswordGameScreenProps) {
-  const [password] = useState('JEET');
+export default function PasswordGameScreen({ onComplete, customData }: PasswordGameScreenProps) {
+  const [password] = useState(customData?.password.toUpperCase() || 'JEET');
+  const [hint] = useState(customData?.hint || 'The password is related to YOU.');
   const [input, setInput] = useState('');
   const [won, setWon] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
@@ -39,7 +46,7 @@ export default function PasswordGameScreen({ onComplete }: PasswordGameScreenPro
 
   // Show congratulations screen if won
   if (showCongratulations) {
-    return <CongratulationsScreen onComplete={handleCongratulationsComplete} />;
+    return <CongratulationsScreen onComplete={handleCongratulationsComplete} customData={customData} />;
   }
 
   const handleKeyPress = (key: string) => {
@@ -107,9 +114,7 @@ export default function PasswordGameScreen({ onComplete }: PasswordGameScreenPro
               transition={{ delay: 0.5, type: "spring" }}
             >
               <p className="text-sm text-gray-800" style={{ fontFamily: 'monospace' }}>
-                💡 Hint: The password
-                <br />
-                is related to YOU.
+                💡 Hint: {hint}
               </p>
             </motion.div>
 
