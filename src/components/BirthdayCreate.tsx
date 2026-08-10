@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Sparkles, Save, Play } from 'lucide-react';
 import Confetti from './Confetti';
 import { useAudio } from './AudioPlayer';
+import LZString from 'lz-string';
 
 interface BirthdayCreateProps {
   onComplete: () => void;
@@ -102,7 +103,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
     };
     
     // Create a shareable link with encoded data
-    const encodedData = btoa(JSON.stringify(gameData));
+    const encodedData = LZString.compressToEncodedURIComponent(JSON.stringify(gameData));
     const gameLink = `${window.location.origin}${window.location.pathname}?game=${encodedData}`;
     
     // Copy to clipboard

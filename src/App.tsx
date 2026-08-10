@@ -10,6 +10,7 @@ import BirthdayCreate from './components/BirthdayCreate';
 import Confetti from './components/Confetti';
 import { AudioProvider } from './components/AudioPlayer';
 import { CursorProvider, Cursor } from './components/ui/cursor';
+import LZString from 'lz-string';
 
 type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'congratulations' | 'create' | 'complete';
 
@@ -27,7 +28,13 @@ export default function App() {
     if (gameParam) {
       // Decode shared game data
       try {
-        const decodedData = JSON.parse(atob(gameParam));
+        let decodedData;
+        const decompressed = LZString.decompressFromEncodedURIComponent(gameParam);
+        if (decompressed) {
+          decodedData = JSON.parse(decompressed);
+        } else {
+          decodedData = JSON.parse(atob(gameParam));
+        }
         setCustomGameData(decodedData);
         setCurrentScreen('birthday'); // Start the game with custom data
       } catch (error) {
@@ -133,7 +140,7 @@ export default function App() {
               <h2 className="text-5xl bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
                 You Won All Games, {customGameData?.name || 'JeeT'}!
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-[#5A2E16]">
                 Happy Birthday! 🎂 Hope you had fun!
               </p>
               <button

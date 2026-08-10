@@ -148,7 +148,7 @@ export default function CongratulationsScreen({ onComplete, customData }: Congra
               <p className="text-2xl leading-relaxed font-medium text-amber-900">
                 {customData?.secretMessage || 'Congratulations! You\'ve unlocked the final secret message. Your journey through all the challenges has been amazing!'}
               </p>
-              <div className="text-3xl font-semibold text-amber-900 mb-5 tracking-wide">
+              <div className="text-3xl font-semibold text-[#5A2E16] mb-5 tracking-wide">
                  Once again, Happy Birthday {customData?.name || 'JeeT'} ✨
               </div>
             </motion.div>
