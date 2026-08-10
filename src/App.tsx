@@ -11,6 +11,7 @@ import Confetti from './components/Confetti';
 import { AudioProvider } from './components/AudioPlayer';
 import { CursorProvider, Cursor } from './components/ui/cursor';
 import LZString from 'lz-string';
+import { Toaster } from 'sonner';
 
 type Screen = 'birthday' | 'intro' | 'guess-number' | 'rps' | 'wordle' | 'password' | 'congratulations' | 'create' | 'complete';
 
@@ -86,6 +87,7 @@ export default function App() {
     <CursorProvider global={true}>
       <AudioProvider>
         <div className="min-h-screen bg-white relative animate-ui-cursor-none">
+          <Toaster position="top-center" richColors />
           <Cursor>
             <div className="relative">
               {/* White arrow pointer */}

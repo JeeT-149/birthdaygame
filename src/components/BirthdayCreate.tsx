@@ -4,6 +4,7 @@ import { Sparkles, Save, Play } from 'lucide-react';
 import Confetti from './Confetti';
 import { useAudio } from './AudioPlayer';
 import LZString from 'lz-string';
+import { toast } from 'sonner';
 
 interface BirthdayCreateProps {
   onComplete: () => void;
@@ -89,7 +90,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
     onComplete();
   };
 
-  const handleCreateLink = () => {
+  const handleCreateLink = async () => {
     if (!isFormValid) return;
     
     playSound('success');
@@ -104,14 +105,49 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
     
     // Create a shareable link with encoded data
     const encodedData = LZString.compressToEncodedURIComponent(JSON.stringify(gameData));
-    const gameLink = `${window.location.origin}${window.location.pathname}?game=${encodedData}`;
+    const longLink = `${window.location.origin}${window.location.pathname}?game=${encodedData}`;
     
-    // Copy to clipboard
-    navigator.clipboard.writeText(gameLink).then(() => {
-      alert(`Game link created and copied to clipboard!\n\nShare this link: ${gameLink}`);
+    try {
+      // Use TinyURL API to shorten the link
+      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`);
+      if (response.ok) {
+        const shortLink = await response.text();
+        
+        navigator.clipboard.writeText(shortLink).then(() => {
+          toast.success('Game link created and copied to clipboard!', {
+            description: 'You can now share this short link with your friend!',
+          });
+        }).catch(() => {
+          toast.error('Failed to copy link automatically.', {
+            description: shortLink,
+            action: {
+              label: 'Copy',
+              onClick: () => navigator.clipboard.writeText(shortLink)
+            },
+            duration: 10000
+          });
+        });
+        return;
+      }
+    } catch (e) {
+      console.error('Failed to shorten URL:', e);
+    }
+    
+    // Fallback to the long link
+    navigator.clipboard.writeText(longLink).then(() => {
+      toast.success('Game link created and copied to clipboard!', {
+        description: 'You can now share this link with your friend!',
+      });
     }).catch(() => {
       // Fallback if clipboard API fails
-      prompt('Game link created! Copy this link to share:', gameLink);
+      toast.error('Failed to copy link automatically.', {
+        description: longLink.substring(0, 50) + '...',
+        action: {
+          label: 'Copy',
+          onClick: () => navigator.clipboard.writeText(longLink)
+        },
+        duration: 10000
+      });
     });
   };
 
