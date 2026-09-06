@@ -76,7 +76,7 @@ export default function CongratulationsScreen({ onComplete, customData }: Congra
 
       {/* Title */}
       <motion.h1
-        className="text-5xl md:text-6xl font-bold text-amber-100 mb-8 text-center drop-shadow-2xl"
+        className="text-6xl font-bold text-amber-100 mb-8 text-center drop-shadow-2xl"
         style={{ fontFamily: 'serif' }}
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,7 +87,7 @@ export default function CongratulationsScreen({ onComplete, customData }: Congra
 
       {/* Subtitle */}
       <motion.p
-        className="text-2xl md:text-3xl text-amber-200 mb-12 text-center drop-shadow-lg"
+        className="text-3xl text-amber-200 mb-12 text-center drop-shadow-lg"
         style={{ fontFamily: 'serif' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

@@ -264,7 +264,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
       <div className="text-center space-y-8 z-10 max-w-6xl w-full pt-32">
         {/* Title */}
         <motion.h1
-          className="text-6xl md:text-7xl lg:text-8xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent font-bold mb-8"
+          className="text-8xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent font-bold mb-8"
           style={{ 
             fontFamily: "'CustomBirthdayFont', 'Comic Sans MS', cursive",
             textShadow: '4px 4px 8px rgba(0,0,0,0.3)',
@@ -288,7 +288,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.5, duration: 0.8, type: "spring", bounce: 0.3 }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {/* Name Field */}
             <motion.div
               className="space-y-2"
@@ -351,7 +351,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
 
             {/* Hint Field */}
             <motion.div
-              className="space-y-2 md:col-span-2"
+              className="space-y-2 col-span-2"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.4, duration: 0.6 }}
@@ -381,7 +381,7 @@ export default function BirthdayCreate({ onComplete }: BirthdayCreateProps) {
 
             {/* Secret Message Field */}
             <motion.div
-              className="space-y-2 md:col-span-2"
+              className="space-y-2 col-span-2"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.6, duration: 0.6 }}
