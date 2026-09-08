@@ -24,6 +24,7 @@ export default function WordleGame({ onComplete, onRetry }: WordleGameProps) {
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [shake, setShake] = useState(false);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
   const { playSound } = useAudio();
 
   // Load words from JSON file
@@ -322,6 +323,78 @@ export default function WordleGame({ onComplete, onRetry }: WordleGameProps) {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Skip Button */}
+      <div className="fixed bottom-6 right-6">
+        <button 
+          onClick={() => {
+            playSound('click');
+            setShowSkipDialog(true);
+          }}
+          className="px-4 py-2 bg-white/50 hover:bg-white border-2 border-pink-300 text-pink-500 rounded-full font-bold shadow-sm hover:shadow-md transition-all"
+          style={{ fontFamily: 'monospace' }}
+        >
+          Skip
+        </button>
+      </div>
+
+      {/* Skip Dialog */}
+      <AnimatePresence>
+        {showSkipDialog && (
+          <motion.div
+            className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white border-4 border-pink-300 rounded-3xl p-6 shadow-xl max-w-sm w-full relative"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => {
+                  playSound('click');
+                  setShowSkipDialog(false);
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-pink-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors text-lg"
+              >
+                ✕
+              </button>
+              
+              <h3 className="text-xl text-center mb-6 mt-2 text-gray-700 font-bold" style={{ fontFamily: 'monospace' }}>
+                Do u accept defeat?
+              </h3>
+              
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    playSound('click');
+                    setShowSkipDialog(false);
+                    onComplete();
+                  }}
+                  className="px-6 py-2 bg-gradient-to-r from-pink-400 to-orange-400 text-white rounded-full hover:scale-105 transition-transform shadow-sm font-bold"
+                  style={{ fontFamily: 'monospace' }}
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => {
+                    playSound('click');
+                    setShowSkipDialog(false);
+                  }}
+                  className="px-6 py-2 bg-gradient-to-r from-green-400 to-blue-400 text-white rounded-full hover:scale-105 transition-transform shadow-sm font-bold"
+                  style={{ fontFamily: 'monospace' }}
+                >
+                  No
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
